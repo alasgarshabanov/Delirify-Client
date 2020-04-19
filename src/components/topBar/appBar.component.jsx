@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
+import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Badge from '@material-ui/core/Badge';
@@ -22,8 +23,9 @@ const AppBarComponent = ({props}) => {
   const {
     isLoggedIn, menuId, mobileMenuId, sidebarOpen,
     handleMobileMenuOpen, handleProfileMenuOpen, handleProfileMenuClose,
-    handleSidebarOpen
+    handleSidebarOpen, currentUserState
   } = props;
+  console.log('CIc ', currentUserState);
   const mobileMenuToggle = useRef(null);
   const desktopMenuToggle = useRef(null);
 
@@ -49,7 +51,7 @@ const AppBarComponent = ({props}) => {
           <div className={classes.grow} />
           <div className={classes.sectionDesktop} >
             <Button onClick={handleProfileMenuClose} color="inherit">
-              <Link to='/feeds'  className={classes.headerNavLinks}>Articles</Link>
+              <Link to='/feeds'  className={classes.headerNavLinks}>Comments</Link>
             </Button>
             {!isLoggedIn && (
               <IconButton
@@ -85,7 +87,10 @@ const AppBarComponent = ({props}) => {
                   onClick={(ev) => handleProfileMenuOpen(ev, desktopMenuToggle)}
                   color="inherit"
                 >
-                  <AccountCircle />
+                  { currentUserState.currentUser.image
+                    ? <Avatar alt="User Memmed" src={currentUserState.currentUser.image} />
+                    : <AccountCircle />
+                  }
                 </IconButton>
               </>
             )}

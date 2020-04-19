@@ -16,7 +16,7 @@ const initialInputs = {
   email: '',
   password: '',
   username: ''
-}
+};
 
 const AuthenticationPage = ({ match }) => {
   const isLogin = match.path === '/login'
@@ -27,10 +27,10 @@ const AuthenticationPage = ({ match }) => {
 
   const classes = useStyles();
   const [form, setForm] = useState(initialInputs);
-  const [isSuccessfullSubmit, setIsSuccessfullSubmit] = useState(false);
+  const [isSuccessfulSubmit, setIsSuccessfulSubmit] = useState(false);
   const [{ response, isLoading, error }, doFetch] = useFetch(apiURL);
   const [, setToken] = useLocalStorage('token');
-  const [, setCurrecntUserState] = useContext(CurrentUserContext);
+  const [currentUserState, dispatch] = useContext(CurrentUserContext);
 
   const {email, password, username} = form;
 
@@ -38,14 +38,9 @@ const AuthenticationPage = ({ match }) => {
     if(!response) return;
 
     setToken(response.user.token);
-    setIsSuccessfullSubmit(true);
-    setCurrecntUserState(state => ({
-      ...state, 
-      isLoggedIn: true, 
-      isLoading: false,
-      currentUser: response.user
-    }));
-  }, [response, setToken, setCurrecntUserState]);
+    setIsSuccessfulSubmit(true);
+    dispatch({type: 'SET_AUTHORIZED', payload: response.user});
+  }, [response, setToken, dispatch]);
 
   const handleSubmit = ev => {
     ev.preventDefault();
@@ -58,7 +53,8 @@ const AuthenticationPage = ({ match }) => {
     });
   };
 
-  if (isSuccessfullSubmit) return <Redirect to="/" />;
+  if (isSuccessfulSubmit || currentUserState.isLoggedIn)
+    return <Redirect to="/" />;
 
 
   return(

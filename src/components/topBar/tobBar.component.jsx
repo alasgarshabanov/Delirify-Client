@@ -31,7 +31,8 @@ const TopBar = props => {
       <AppBarComponent
         props={{
           ...props, isLoggedIn, menuId, mobileMenuId, handleSidebarOpen,
-          handleMobileMenuOpen, handleProfileMenuOpen, handleProfileMenuClose
+          handleMobileMenuOpen, handleProfileMenuOpen, handleProfileMenuClose,
+          currentUserState
         }}
       />
       <SidebarMenu
