@@ -17,15 +17,15 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 
 import useStyles from './topBar.style';
+import LanguageComponent from "./languageComoponent";
 
-const AppBarComponent = ({props}) => {
+const AppBarComponent = props => {
   const classes = useStyles();
-  const {
+  const {pass: {
     isLoggedIn, menuId, mobileMenuId, sidebarOpen,
     handleMobileMenuOpen, handleProfileMenuOpen, handleProfileMenuClose,
     handleSidebarOpen, currentUserState
-  } = props;
-  console.log('CIc ', currentUserState);
+  }} = props;
   const mobileMenuToggle = useRef(null);
   const desktopMenuToggle = useRef(null);
 
@@ -62,7 +62,7 @@ const AppBarComponent = ({props}) => {
                 color="inherit"
               >
                 <Link to="/login"  className={classes.headerNavLinks}>
-                  <LockOpenIcon aria-label="authentication page" color="inherit"></LockOpenIcon>
+                  <LockOpenIcon aria-label="authentication page" color="inherit"/>
                 </Link>
               </IconButton>
             )}
@@ -94,6 +94,7 @@ const AppBarComponent = ({props}) => {
                 </IconButton>
               </>
             )}
+            <LanguageComponent />
           </div>
           <div className={classes.sectionMobile}>
             <IconButton

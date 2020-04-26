@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import { Grid, Paper } from "@material-ui/core";
 
 import useFetch from '../../hooks/useFetch.hook';

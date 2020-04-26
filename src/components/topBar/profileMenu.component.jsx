@@ -1,26 +1,28 @@
 import React from 'react';
 import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import ProfileItemsComponent from "./profileItems.component";
 
 
 const ProfileMenuComponent = props => {
-  const {anchorEl, handleProfileMenuClose, menuId, isMenuOpen} = props;
+  const {
+    pass: { anchorEl, handleProfileMenuClose, menuId, isMenuOpen }
+  } = props;
 
   return(
-      <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        id={menuId}
-        keepMounted
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={isMenuOpen}
-        onClose={handleProfileMenuClose}
-      >
-  
-        <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
-        <MenuItem onClick={handleProfileMenuClose}>My account</MenuItem>
-      </Menu>
+    <Menu
+      id={menuId}
+      anchorEl={anchorEl}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      open={isMenuOpen}
+      onClose={handleProfileMenuClose}
+      getContentAnchorEl={null}
+    >
+      <div>
+        <ProfileItemsComponent { ...props } />
+      </div>
+    </Menu>
   );
-}
+};
 
 export default ProfileMenuComponent;

@@ -1,0 +1,44 @@
+Response from signup and also from login
+
+
+93378
+email: "nuguha@mailinator.com"
+createdAt: "2020-04-19T13:33:23.887Z"
+updatedAt: "2020-04-19T13:33:23.891Z"
+username: "Nuuda Ma"
+bio: null
+image: null
+token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6OTMzNzgsInVzZXJuYW1lIjoiTnV1ZGEgTWEiLCJleHAiOjE1OTI0ODcyMDN9.oxjVYKxU8bTV4i35j3hUBtttqOwvA1brIX1d_XH0eNY"
+
+
+user:
+id: 93378
+email: "nuguha@mailinator.com"
+createdAt: "2020-04-19T13:33:23.887Z"
+updatedAt: "2020-04-19T13:33:23.891Z"
+username: "Nuuda Ma"
+bio: null
+image: null
+token: "eyJ0eXAiOiJK
+
+
+
+<div className={ classes.actionsContainer }>
+  <Button
+    disabled={activeStep < 1}
+    onClick={handleBack}
+    className={classes.button}
+    color="secondary"
+  >
+    {TEXT_BACK}
+  </Button>
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={handleNext}
+    className={classes.button}
+  >
+    {activeStep === steps.length - 1 ? FINISH : TEXT_NEXT}
+  </Button>
+</div>
+

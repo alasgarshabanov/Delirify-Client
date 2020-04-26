@@ -6,6 +6,7 @@
 .history
 ./temp
 ./tmp
+.env
 
 .pnp.js
 

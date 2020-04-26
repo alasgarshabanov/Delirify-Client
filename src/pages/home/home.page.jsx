@@ -13,6 +13,7 @@ const HomePage = () => {
           <Grid container justify="center">
             <Grid item xs={9}>
               <Typography>Start to sell directly</Typography>
+              <br />
               <Button variant="contained" color="secondary" href={'/sell-without-registration'}>
                 Start To Sell
               </Button>
@@ -23,6 +24,7 @@ const HomePage = () => {
           <Grid container justify="center">
             <Grid item xs={9}>
               <Typography>I need only delivery</Typography>
+              <br />
               <Button variant="contained" href={'/order-delivery'}>
                 Order Delivery
               </Button>
@@ -33,6 +35,7 @@ const HomePage = () => {
           <Grid container justify="center">
             <Grid item xs={9}>
               <Typography>If you don't want each time fill long form, will be best to register now :)</Typography>
+              <br />
               <Button variant="contained" color="primary" href={'/register'}>Start With Registration</Button>
             </Grid>
           </Grid>

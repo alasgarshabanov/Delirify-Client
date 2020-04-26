@@ -2,14 +2,14 @@ import React, {useContext} from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import useStyles from './topBar.style';
 
-import {CurrentUserContext} from '../../contexts/currentUser.context';
 import MobileMenu from './mobileMenu.component';
 import SidebarMenu from './sidebarMenu.component';
 import AppBarComponent from './appBar.component';
 import ProfileMenuComponent from './profileMenu.component';
 import menuAnchor from '../../hooks/menuAnchor.hook';
+import {CurrentUserContext} from '../../contexts/providers/currentUser.context';
 
-const TopBar = props => {
+const TopBarComponent = props => {
   const theme = useTheme;
   const classes = useStyles(theme);
   const [
@@ -29,32 +29,32 @@ const TopBar = props => {
   return (
     <div className={classes.grow}>
       <AppBarComponent
-        props={{
-          ...props, isLoggedIn, menuId, mobileMenuId, handleSidebarOpen,
+        pass={{
+          isLoggedIn, menuId, mobileMenuId, handleSidebarOpen,
           handleMobileMenuOpen, handleProfileMenuOpen, handleProfileMenuClose,
           currentUserState
         }}
+        {...props}
       />
       <SidebarMenu
-        props={{
-          ...props, theme, classes, sidebarOpen, handleSidebarClose,
-        }}
+        pass={{ theme, classes, sidebarOpen, handleSidebarClose }}
+        {...props}
       />
       <MobileMenu
-        isLoggedIn={isLoggedIn}
-        isMobileMenuOpen={isMobileMenuOpen} mobileMenuId={mobileMenuId}
-        mobileMoreAnchorEl={mobileMoreAnchorEl}
-        handleMobileMenuOpen={handleMobileMenuOpen}
-        handleMobileMenuClose={handleMobileMenuClose}
+        pass={{
+          isLoggedIn, isMobileMenuOpen, mobileMenuId, mobileMoreAnchorEl,
+          handleMobileMenuOpen, handleMobileMenuClose
+        }}
+        {...props}
       />
       {isLoggedIn && (
         <ProfileMenuComponent
-          menuId={menuId} isMenuOpen={isMenuOpen}
-          anchorEl={anchorEl} handleProfileMenuClose={handleProfileMenuClose}
+          pass={{ menuId, isMenuOpen, anchorEl, handleProfileMenuClose, classes }}
+          {...props}
         />
       )}
     </div>
   );
 };
 
-export default TopBar;
+export default TopBarComponent;

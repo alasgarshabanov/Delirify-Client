@@ -1,0 +1,4 @@
+export default {
+  ACTION_CHANGE_LANGUAGE: "ACTION_CHANGE_LANGUAGE"
+};
+

@@ -17,6 +17,9 @@ export default makeStyles(theme => ({
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
+    popUpContent: {
+      top: 40
+    },
     grow: {
       flexGrow: 1,
     },
@@ -52,7 +55,6 @@ export default makeStyles(theme => ({
       justifyContent: 'flex-end',
     },
     sidebarMenuItem: {
-      
     },
     inputRoot: {
       color: 'inherit',
