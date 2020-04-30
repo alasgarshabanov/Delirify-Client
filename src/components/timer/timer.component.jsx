@@ -18,7 +18,7 @@ const TimerComponent = props => {
   return (
     <AlertComponent {...props}>
       {innerStep === 0 && `You can send additional request only after ${verificationAttemptExpireAfter} seconds`}
-      {innerStep === 1 && `Will expire after ${verificationAttemptExpireAfter} seconds and ${verificationAttempts} attempts.`}
+      {innerStep === 1 && `Will expire after ${verificationAttemptExpireAfter} seconds and ${verificationAttempts - 1} attempts.`}
     </AlertComponent>
   )
 };

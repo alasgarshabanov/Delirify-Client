@@ -5,9 +5,9 @@ import InputMask from "react-input-mask";
 import {registrationActions, useRegistrationContext} from "../../../contexts/providers/registration.context";
 import useFetch from "../../../hooks/useFetch.hook";
 import LoadingComponent from "../../../components/ui/loadin.component";
-import AlertComponent from "../../../components/ui/alert.component";
 import TimerComponent from "../../../components/timer/timer.component";
 import {SMS_CODE_VERIFICATION_EXPIRE_SECONDS} from "../../../config";
+import ActionAlertComponent from "../../../components/ui/actionAlert.component";
 
 
 const MobileEnterContainer = props => {
@@ -47,7 +47,7 @@ const MobileEnterContainer = props => {
     if (response) {
       setErrorMessage('');
       if (typeof response.data !== 'undefined') {
-        const {data} = response;
+        const { data } = response;
         if (typeof data.generateVerificationCode !== 'undefined') {
           const { generateVerificationCode } = data;
           if (generateVerificationCode) {
@@ -66,6 +66,7 @@ const MobileEnterContainer = props => {
           const { checkVerificationCode } = data;
           if (checkVerificationCode) {
             if (checkVerificationCode.ok) {
+              dispatch({ type: registrationActions.ACTION_MOBILE_NUMBER_VERIFIED});
               dispatch({ type: registrationActions.NEXT_STEP });
             } else {
               if (verificationAttempts > 0 && innerStep === 1)
@@ -78,7 +79,8 @@ const MobileEnterContainer = props => {
 
     if (error) {
       setSuccessMessage('');
-      setErrorMessage(error.data.message);
+      console.log('ERRO > >', error);
+      setErrorMessage(JSON.stringify(error));
     }
   }, [error, response, dispatch]);
 
@@ -185,9 +187,9 @@ const MobileEnterContainer = props => {
       {isLoading && <LoadingComponent />}
       <Box>
         <Grid item xs={8}>
-          {successMessage && <AlertComponent xs={8}> { successMessage } </AlertComponent>}
+          {successMessage && <ActionAlertComponent xs={8} severity="success" message={successMessage} />}
           { errorMessage && (
-            <AlertComponent severity="error" xs={8}> {errorMessage} </AlertComponent>
+            <ActionAlertComponent severity="error" xs={8} message={errorMessage} />
           )}
           { verificationAttemptExpireAfter < SMS_CODE_VERIFICATION_EXPIRE_SECONDS
             && <TimerComponent severity="info" /> }

@@ -1,8 +1,7 @@
-import { registrationContextInitialState } from '../providers/registration.context';
+import { registrationContextInitialPureState, registrationActions} from '../providers/registration.context';
 import registerActions  from '../actions/register.actions';
-import {SMS_CODE_VERIFICATION_EXPIRE_SECONDS} from "../../config";
 
-export default (state = registrationContextInitialState, action) => {
+export default (state = registrationContextInitialPureState, action) => {
   const { currentStep, verificationAttempts, verificationAttemptExpireAfter } = state;
 
   switch (action.type) {
@@ -23,6 +22,9 @@ export default (state = registrationContextInitialState, action) => {
       const { mobile } = action.payload;
       return { ...state, isLoading: true, mobile };
 
+      case registerActions.ACTION_MOBILE_NUMBER_VERIFIED:
+      return { ...state, mobileVerified: true };
+
     case registerActions.TIMER_COUNTDOWN_START:
       return {...state, countDownStart: true};
 
@@ -39,6 +41,16 @@ export default (state = registrationContextInitialState, action) => {
         return resetMobileVerification(state);
       return { ...state, verificationAttempts: verificationAttempts - 1 };
 
+    case registrationActions.ACTION_USER_FILLED_PERSONAL_DATA:
+      const { name, surname, username, email } = action.payload;
+      return {
+        ...state,
+        currentStep: currentStep + 1,
+        email,
+        username,
+        user: { name, surname }
+      };
+
     case registerActions.FAILED_MOBILE_SENT:
     case registerActions.SUCCESS_MOBILE_SENT:
       return { ...state, isLoading: false };
@@ -49,13 +61,5 @@ export default (state = registrationContextInitialState, action) => {
 };
 
 const resetMobileVerification = (state) => {
-  return {
-    ...state,
-    currentStep: 0,
-    innerStep: 0,
-    verificationAttempts: 3,
-    countDownStart: false,
-    verificationAttemptExpireAfter: SMS_CODE_VERIFICATION_EXPIRE_SECONDS,
-    mobile: ''
-  }
+  return registrationContextInitialPureState;
 };

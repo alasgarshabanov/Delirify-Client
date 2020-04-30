@@ -9,21 +9,22 @@ const DialogComponent = props => {
   const { getContentQuery, visible } = props;
   const [{ isLoading, response, error }, doFetch] = useFetch();
   const [open, setOpen] = useState(visible || false);
-  const [title, setTitle] = useState('Loading');
-  const [content, setContent] = useState('Loading');
+  const [contenLoaded, setContentLoaded] = useState(false);
+  const [title, setTitle] = useState('Title loading...');
+  const [content, setContent] = useState('Content loading...');
 
   const handleClose = () => {
     setOpen(false);
   };
 
   useEffect(() => {
+    if (!contenLoaded)
       doFetch({
         data: getContentQuery
       })
-  }, [doFetch, getContentQuery]);
+  }, [doFetch, getContentQuery, contenLoaded]);
 
   useEffect(() => {
-    console.log('RESP', response, 'Err', error);
     if (response) {
       if ( typeof response.data !== 'undefined' ) {
         const { data } = response;
@@ -32,6 +33,7 @@ const DialogComponent = props => {
           if (pageTranslation) {
             if (pageTranslation.title) setTitle(pageTranslation.title);
             if (pageTranslation.body) setContent(pageTranslation.body);
+            setContentLoaded(true);
           } else {
             setContent("Sorry Something Went Wrong");
           }

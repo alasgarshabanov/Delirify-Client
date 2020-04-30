@@ -1,11 +1,17 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { useIntl } from "react-intl";
+import axios from 'axios';
 import {
-  Grid, TextField, RadioGroup, FormControlLabel, Radio, Link, FormControl, FormLabel,
-  Checkbox, FormHelperText, Box, Button
+  Grid, TextField, FormControlLabel, Link, Checkbox, FormHelperText, Box, Button
 } from "@material-ui/core";
-import { object, string, bool, number } from 'yup';
+import { object, string, bool } from 'yup';
 import DialogComponent from "../../../components/dialog/dialog.component";
+import useFetch from '../../../hooks/useFetch.hook';
+import {registrationActions, useRegistrationContext} from "../../../contexts/providers/registration.context";
+import {useAppContext} from "../../../contexts/providers/app.context";
+import LoadingComponent from "../../../components/ui/loadin.component";
+import AlertComponent from "../../../components/ui/alert.component";
+import ActionAlertComponent from "../../../components/ui/actionAlert.component";
 
 const formInitialState = {
   name: '',
@@ -15,21 +21,24 @@ const formInitialState = {
   userType: '',
   termsAccepted: false
 };
-const alertInitialState = { type: 'error', message: '' };
+const notificationInitialState = { hasNotificationMessage: false, type: 'error', message: '' };
 
 const PersonalData = props => {
   const { classes, translations } = props;
   const {formatMessage: t} = useIntl();
+  const [registrationState, dispatch] = useRegistrationContext();
+  const [appState] = useAppContext();
+  const [{ response, error, isLoading }, doFetch] = useFetch();
   const [form, setForm] = useState(formInitialState);
   const [values, setValues] = useState({
-    alert: alertInitialState,
     errors: {},
+    notification: notificationInitialState,
     touchedFields: {},
     showTerms: false
   });
 
-  const { name, surname, email, password, userType, termsAccepted} = form;
-  const { alert, errors, touchedFields, showTerms } = values;
+  const { name, surname, email, password, termsAccepted} = form;
+  const { errors, notification, touchedFields, showTerms } = values;
 
   let validations = {
     name: string().required('Name is required'),
@@ -38,8 +47,8 @@ const PersonalData = props => {
       .required('Field is required'),
     password: string().required('Password is required')
       .min(6, 'Password min lenght is 6 characters'),
-    userType: number().oneOf([1, 3], 'Please select one of user types')
-      .required('User type selection is required'),
+    // userType: number().oneOf([1, 3], 'Please select one of user types')
+    //   .required('User type selection is required'),
     termsAccepted: bool().oneOf([true], 'You have to read and accept terms')
   };
 
@@ -48,10 +57,43 @@ const PersonalData = props => {
     surname: validations.surname,
     password: validations.password,
     email: validations.email,
-    userType: validations.userType,
+    // userType: validations.userType,
     termsAccepted: validations.termsAccepted
   });
 
+  useEffect(() => {
+    if (response) {
+      if (typeof response.data !== 'undefined') {
+        const { data } = response;
+        if (data) {
+          const { registerUser } = data;
+          if (registerUser) {
+            const { createdUser } = registerUser;
+            if (createdUser) {
+              const { email, username } = createdUser;
+              const { name, surname } = createdUser.profile[0];
+              if (name && surname && username && email) {
+                dispatch({
+                  type: registrationActions.ACTION_USER_FILLED_PERSONAL_DATA,
+                  payload: {
+                    name, surname, username, email
+                  }
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (error) {
+      const message = error.map((err) => {
+        return err.message || '';
+      });
+      setValues({...values, notification: {hasNotificationMessage: true, type: "error", message }});
+    }
+
+  }, [error, response, dispatch]); // adding values cause error
 
   const handleOnChange = ev => {
     const name = ev.target.name;
@@ -65,7 +107,8 @@ const PersonalData = props => {
           delete errors[name];
           setValues({
             ...values,
-            error: alertInitialState,
+            errors: {},
+            notification: notificationInitialState,
             touchedFields: {...touchedFields, [name]: true}}
           );
         }
@@ -83,13 +126,45 @@ const PersonalData = props => {
   const handleNext = ev => {
     ev.preventDefault();
 
-    fullValidationSchema.validate({ name, surname, password, email, userType, termsAccepted })
-      .then((ex) => {
-        console.log('-- > >', ex);
+    fullValidationSchema.validate({ name, surname, password, email, termsAccepted })
+      .then(() => {
+        setUserData();
       }).catch((err) => {
       setValues({...values, error: { type:'error', message: err.message }});
     });
+  };
 
+  const handleCloseAlert = () => {
+    setValues({ ...values, notification: notificationInitialState });
+  };
+
+  const setUserData = () => {
+    doFetch({
+      data: {
+        query: `
+        mutation RegisterUser($userData: RegistrationInput!) {
+          registerUser(userData: $userData) {
+            createdUser {
+              username
+              email
+              profile {
+                name
+                surname
+              }
+            }
+          }
+        }`,
+        variables: {
+          userData: {
+            name, surname, password, email, termsAccepted,
+            mobile: registrationState.mobile,
+            isMobileVerified: registrationState.mobileVerified,
+            isEmailVerified: false,
+            locale: appState.locale
+          }
+        }
+      }
+    })
   };
 
   const handleShowTerms = () => {
@@ -110,113 +185,108 @@ const PersonalData = props => {
   };
 
   return(
-    <Box>
-      <Grid container spacing={5}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="name"
-            name="name"
-            required={true}
-            fullWidth
-            label="Name"
-            className={classes.formField}
-            onChange={handleOnChange}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="surname"
-            required
-            fullWidth
-            name="surname"
-            label="Surname" className={classes.formField}
-            onChange={handleOnChange}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="email"
-            required
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            className={classes.formField}
-            onChange={handleOnChange}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="passowrd"
-            required
-            fullWidth
-            type="password"
-            label="Password"
-            name="password"
-            className={classes.formField}
-            onChange={handleOnChange}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">User Type</FormLabel>
-            <br/>
-            <RadioGroup
-              row
-              name="userType"
-              aria-label="quiz"
-              value={userType}
-              onChange={handleOnChange}
-            >
-              <FormControlLabel value="1" control={<Radio />} label="Huquqi" />
-              <FormControlLabel value="3" control={<Radio />} label="Fiziki" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12}>
-          <FormControlLabel
-            control = {
-              <Checkbox
-                required
-                id='termsAccepted'
-                name='termsAccepted'
-                value={termsAccepted}
-                color="primary"
+    <div>
+      {
+        notification.hasNotificationMessage &&
+        <ActionAlertComponent message={notification.message} severity={notification.type} onClose={handleCloseAlert} />
+      }
+      { isLoading && <LoadingComponent /> }
+      { (!isLoading && !notification.hasNotificationMessage) && (
+        <Box>
+          <Grid container spacing={5}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="name"
+                name="name"
+                required={true}
+                fullWidth
+                label="Name"
+                className={classes.formField}
                 onChange={handleOnChange}
               />
-            }
-            label={t(
-              {id:"ACCEPT_TERMS_AND_CONDITIONS"},
-              {
-                a: msg => (
-                  <span
-                    className="external-link"
-                    data-url="terms"
-                  >
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="surname"
+                required
+                fullWidth
+                name="surname"
+                label="Surname" className={classes.formField}
+                onChange={handleOnChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="email"
+                required
+                fullWidth
+                label="Email"
+                name="email"
+                type="email"
+                className={classes.formField}
+                onChange={handleOnChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="passowrd"
+                required
+                fullWidth
+                type="password"
+                label="Password"
+                name="password"
+                className={classes.formField}
+                onChange={handleOnChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control = {
+                  <Checkbox
+                    required
+                    id='termsAccepted'
+                    name='termsAccepted'
+                    value={termsAccepted}
+                    color="primary"
+                    onChange={handleOnChange}
+                  />
+                }
+                label={t(
+                  {id:"ACCEPT_TERMS_AND_CONDITIONS"},
+                  {
+                    a: msg => (
+                      <span
+                        key={33}
+                        className="external-link"
+                        data-url="terms"
+                      >
                       {msg}
                     </span>
-                )
-              })}
-          />
-          (<Link href="#" onClick={handleShowTerms} > Terms and conditions </Link>)
-          {touchedFields.termsAccepted && errors.termsAccepted
-            ? <FormHelperText> {errors.termsAccepted} </FormHelperText> : ''
-          }
-          { showTerms && <DialogComponent visible={ showTerms } getContentQuery={ getTermsQuery } /> }
-        </Grid>
-      </Grid>
-      <div className={ classes.actionsContainer }>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleNext}
-          className={classes.button}
-          disabled={errors && Object.entries(errors).length > 0}
-        >
-          {translations.TEXT_NEXT}
-        </Button>
-      </div>
-    </Box>
+                    )
+                  })}
+              />
+              (<Link href="#" onClick={handleShowTerms} > Terms and conditions </Link>)
+              {touchedFields.termsAccepted && errors.termsAccepted
+                ? <FormHelperText> {errors.termsAccepted} </FormHelperText> : ''
+              }
+              { showTerms && <DialogComponent visible={ showTerms } getContentQuery={ getTermsQuery } /> }
+            </Grid>
+          </Grid>
+          <div className={ classes.actionsContainer }>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNext}
+              className={classes.button}
+              disabled={errors && Object.entries(errors).length > 0}
+            >
+              {translations.TEXT_NEXT}
+            </Button>
+          </div>
+        </Box>
+      )
+      }
+    </div>
   )
 };
 

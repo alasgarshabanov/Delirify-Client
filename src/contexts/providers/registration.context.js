@@ -3,10 +3,10 @@ import * as moment from "moment";
 
 import registrationReducer from '../reducers/register.reducer';
 import registrationActions from '../actions/register.actions';
-import {getStorageKey, saveStorageKey} from "../../utils/localStorage";
+import {getStorageKey, removeStorageKey, saveStorageKey} from "../../utils/localStorage";
 import {REGISTRATION_STATE_KEY, SMS_CODE_VERIFICATION_EXPIRE_SECONDS} from "../../config";
 
-const registrationContextInitialState = getStorageKey(REGISTRATION_STATE_KEY) || {
+const registrationContextInitialPureState = {
   currentStep: 0,
   isLoading: false,
   innerStep: 0,
@@ -18,10 +18,9 @@ const registrationContextInitialState = getStorageKey(REGISTRATION_STATE_KEY) ||
   userType: 1,
   email: '',
   username: '',
-  company: {
+  user: {
     name: '',
-    identityNumber: '',
-    phone: '',
+    surname: '',
   },
   address: {
     country: '',
@@ -31,13 +30,22 @@ const registrationContextInitialState = getStorageKey(REGISTRATION_STATE_KEY) ||
     addressLine: '',
     addressLine2: '',
   },
-  validTill: moment().add(1, 'd')
+  validTill: moment().add(6, 'h')
 };
+
+const registrationContextInitialState = getStorageKey(REGISTRATION_STATE_KEY) || registrationContextInitialPureState;
 
 const RegistrationContext = createContext(registrationContextInitialState);
 
 const RegistrationProvider = ({ children }) => {
   const [registrationState, dispatch] = useReducer(registrationReducer, registrationContextInitialState);
+
+  useEffect(() => {
+    if (moment(registrationContextInitialState.validTill).isBefore(Date.now())) {
+      removeStorageKey(REGISTRATION_STATE_KEY);
+      saveStorageKey(REGISTRATION_STATE_KEY, registrationContextInitialPureState);
+    }
+  }, []);
 
   useEffect(() => {
     saveStorageKey(REGISTRATION_STATE_KEY, registrationState);
@@ -59,4 +67,4 @@ const useRegistrationContext = () => {
 };
 
 
-export { RegistrationContext, RegistrationProvider, useRegistrationContext, registrationContextInitialState, registrationActions };
+export { RegistrationContext, RegistrationProvider, useRegistrationContext, registrationContextInitialState, registrationActions, registrationContextInitialPureState };

@@ -34,24 +34,30 @@ export default () => {
     if (!isLoading)
       return;
     axios(requestOptions).then(res => {
-      console.log('Fetch >> ', res);
       if (!skipGetResponseAfterDestroy) {
         setIsLoading(false);
-        setResponse(res.data);
+        if (res.data) {
+          setResponse(res.data);
+          const { errors } = res.data;
+          if (typeof errors !== 'undefined') {
+            setError(errors);
+          }
+        }
       }
     }).catch(err => {
-      console.log('Fetch err > >', err);
-      if (!skipGetResponseAfterDestroy) {
+      if (!skipGetResponseAfterDestroy && err) {
         setIsLoading(false);
-        const { data } = err.response;
-        if (data)
-          setError(data);
+        if (typeof err.data !== 'undefined') {
+          const { data } = err.response;
+          if (data)
+            setError(data);
+        }
         else
-          setError('Unknown Error');
+          setError('Unknown Error: ' + JSON.stringify(err));
       }
     });
 
-    // After component destroyed
+    // After component destroyed, if we will need on
     return () => { skipGetResponseAfterDestroy = true; }
   }, [isLoading, options, token, baseURL]);
 
