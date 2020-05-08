@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import { useIntl } from "react-intl";
-import axios from 'axios';
 import {
   Grid, TextField, FormControlLabel, Link, Checkbox, FormHelperText, Box, Button
 } from "@material-ui/core";
@@ -10,7 +9,6 @@ import useFetch from '../../../hooks/useFetch.hook';
 import {registrationActions, useRegistrationContext} from "../../../contexts/providers/registration.context";
 import {useAppContext} from "../../../contexts/providers/app.context";
 import LoadingComponent from "../../../components/ui/loadin.component";
-import AlertComponent from "../../../components/ui/alert.component";
 import ActionAlertComponent from "../../../components/ui/actionAlert.component";
 
 const formInitialState = {
@@ -42,11 +40,11 @@ const PersonalData = props => {
 
   let validations = {
     name: string().required('Name is required'),
-    surname: string().required('Surename field is required'),
+    surname: string().required('Surname field is required'),
     email: string().email('Not valid email')
       .required('Field is required'),
     password: string().required('Password is required')
-      .min(6, 'Password min lenght is 6 characters'),
+      .min(6, 'Password min length is 6 characters'),
     // userType: number().oneOf([1, 3], 'Please select one of user types')
     //   .required('User type selection is required'),
     termsAccepted: bool().oneOf([true], 'You have to read and accept terms')
@@ -64,33 +62,54 @@ const PersonalData = props => {
   useEffect(() => {
     if (response) {
       if (typeof response.data !== 'undefined') {
-        const { data } = response;
+        const { data, errors } = response;
+        if (errors) {
+          let message = errors.map((err) => {
+            return err.message;
+          })
+          setValues({...values, notification: { hasNotificationMessage: true, type: 'error', message }})
+        }
         if (data) {
           const { registerUser } = data;
           if (registerUser) {
-            const { createdUser } = registerUser;
-            if (createdUser) {
-              const { email, username } = createdUser;
-              const { name, surname } = createdUser.profile[0];
-              if (name && surname && username && email) {
-                dispatch({
-                  type: registrationActions.ACTION_USER_FILLED_PERSONAL_DATA,
-                  payload: {
-                    name, surname, username, email
-                  }
-                });
-              }
+            const { user, success, message } = registerUser;
+            if (user && success) {
+              console.log('suus', user, success, registerUser)
+              const { email, username, userProfile: {name, surname} } = user;
+              setValues({...values, notification: { hasNotificationMessage: true, type: 'success', message }})
+              setTimeout(() => {
+                setValues({...values, notification: notificationInitialState })
+                if (name && surname && username && email) {
+                  dispatch({
+                    type: registrationActions.ACTION_USER_FILLED_PERSONAL_DATA,
+                    payload: {
+                      name, surname, username, email
+                    }
+                  });
+                }
+              }, 2000)
             }
+            if (!success && message) {
+              setValues({...values, notification: { hasNotificationMessage: true, type: 'error', message }})
+            }
+          }
+          else {
           }
         }
       }
     }
 
     if (error) {
-      const message = error.map((err) => {
-        return err.message || '';
-      });
-      setValues({...values, notification: {hasNotificationMessage: true, type: "error", message }});
+      let message = '';
+      if (typeof error === 'object') {
+        message = error.map((err) => {
+          return err.message || '';
+        });
+      } else
+        message = JSON.stringify(error);
+
+      if (!notification.hasNotificationMessage)
+        setValues({...values, notification: {hasNotificationMessage: true, type: "error", message }});
     }
 
   }, [error, response, dispatch]); // adding values cause error
@@ -135,19 +154,20 @@ const PersonalData = props => {
   };
 
   const handleCloseAlert = () => {
-    setValues({ ...values, notification: notificationInitialState });
+    setValues({ ...values, error: {},  notification: notificationInitialState });
   };
 
   const setUserData = () => {
     doFetch({
       data: {
-        query: `
-        mutation RegisterUser($userData: RegistrationInput!) {
+        query:`mutation RegisterUser($userData: UserRegisterInput!) {
           registerUser(userData: $userData) {
-            createdUser {
-              username
+            success
+            message
+            user {
               email
-              profile {
+              username
+              userProfile {
                 name
                 surname
               }
@@ -173,9 +193,12 @@ const PersonalData = props => {
 
   const getTermsQuery = {
     query: `query GetPageTranslation($id: Int!, $locale: String) {
-      pageTranslation(pageId: $id, locale: $locale) {
-        title
-        body
+      getPageTranslation(pageId: $id, locale: $locale) {
+        success
+        page {
+          title
+          body
+        }
       }
     }`,
     variables: {

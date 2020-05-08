@@ -51,7 +51,7 @@ const MobileEnterContainer = props => {
         if (typeof data.generateVerificationCode !== 'undefined') {
           const { generateVerificationCode } = data;
           if (generateVerificationCode) {
-            if (generateVerificationCode.ok) {
+            if (generateVerificationCode.success) {
               setSuccessMessage(generateVerificationCode.message);
               dispatch({ type: registrationActions.REFRESH_TIMER });
               dispatch({ type: registrationActions.NEXT_INNER_STEP });
@@ -65,7 +65,7 @@ const MobileEnterContainer = props => {
         if (typeof data.checkVerificationCode !== 'undefined') {
           const { checkVerificationCode } = data;
           if (checkVerificationCode) {
-            if (checkVerificationCode.ok) {
+            if (checkVerificationCode.success) {
               dispatch({ type: registrationActions.ACTION_MOBILE_NUMBER_VERIFIED});
               dispatch({ type: registrationActions.NEXT_STEP });
             } else {
@@ -79,7 +79,6 @@ const MobileEnterContainer = props => {
 
     if (error) {
       setSuccessMessage('');
-      console.log('ERRO > >', error);
       setErrorMessage(JSON.stringify(error));
     }
   }, [error, response, dispatch]);
@@ -144,14 +143,12 @@ const MobileEnterContainer = props => {
     });
     await doFetch({
       data: {
-        query: `
-          mutation GenerateCode($verifiedData: String!) {
-            generateVerificationCode (verifiedData: $verifiedData) {
-              ok
-              message
-            }
+        query: `mutation GenerateCode($verifiedData: String!) {
+          generateVerificationCode (verifiedData: $verifiedData) {
+            success
+            message
           }
-        `,
+        }`,
         variables: {
           "verifiedData": verifiedData
         }
@@ -167,10 +164,9 @@ const MobileEnterContainer = props => {
   const sendVerificationCode = async (code) => {
     await doFetch({
       data: {
-        query: `
-          mutation CodeVerifierQuery($mobileNumber: String!, $verificationCode: String!) {
+        query: `mutation CodeVerifierQuery($mobileNumber: String!, $verificationCode: String!) {
           checkVerificationCode(mobileNumber: $mobileNumber, verificationCode: $verificationCode) {
-            ok
+            success
             message
           }
         }`,

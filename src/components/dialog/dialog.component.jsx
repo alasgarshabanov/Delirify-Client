@@ -9,7 +9,7 @@ const DialogComponent = props => {
   const { getContentQuery, visible } = props;
   const [{ isLoading, response, error }, doFetch] = useFetch();
   const [open, setOpen] = useState(visible || false);
-  const [contenLoaded, setContentLoaded] = useState(false);
+  const [contentLoaded, setContentLoaded] = useState(false);
   const [title, setTitle] = useState('Title loading...');
   const [content, setContent] = useState('Content loading...');
 
@@ -18,24 +18,26 @@ const DialogComponent = props => {
   };
 
   useEffect(() => {
-    if (!contenLoaded)
+    if (!contentLoaded)
       doFetch({
         data: getContentQuery
       })
-  }, [doFetch, getContentQuery, contenLoaded]);
+  }, [doFetch, getContentQuery, contentLoaded]);
 
   useEffect(() => {
     if (response) {
       if ( typeof response.data !== 'undefined' ) {
         const { data } = response;
-        if (typeof data.pageTranslation !== 'undefined') {
-          const { pageTranslation } = data;
-          if (pageTranslation) {
-            if (pageTranslation.title) setTitle(pageTranslation.title);
-            if (pageTranslation.body) setContent(pageTranslation.body);
+        if (typeof data.getPageTranslation !== 'undefined') {
+          const { success, page, message } = data.getPageTranslation;
+          if (success && page) {
+            const { title, body } = page;
+            if (title) setTitle(title);
+            if (body) setContent(body);
             setContentLoaded(true);
           } else {
-            setContent("Sorry Something Went Wrong");
+            const alert = message || "Sorry Something Went Wrong";
+            setContent(alert);
           }
         }
       }

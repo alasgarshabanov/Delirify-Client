@@ -6,6 +6,7 @@ import MobileEnterContainer from "./registerSteps/mobileEnter.container";
 import { useRegistrationContext } from "../../contexts/providers/registration.context";
 import PersonalData from "./registerSteps/perosnalData.container";
 import ResetWholeRegistrationForm from "../../components/form/resetWholeRegistrationForm.component";
+import AddressRegistration from "./registerSteps/addressRegistration.container";
 
 const RegisterContainer = props => {
   const { classes } = props;
@@ -38,11 +39,11 @@ const RegisterContainer = props => {
         <Step key={2}>
           <StepLabel>Address</StepLabel>
           <StepContent>
-            { currentStep === 2 && <MobileEnterContainer translations={{ TEXT_NEXT }} classes={classes} {...props} />}
+            { currentStep === 2 && <AddressRegistration translations={{ TEXT_NEXT }} classes={classes} {...props} />}
           </StepContent>
         </Step>
       </Stepper>
-      { currentStep > 0 && <ResetWholeRegistrationForm /> }
+      { currentStep === 1 && <ResetWholeRegistrationForm /> }
   </div>
 )
 };

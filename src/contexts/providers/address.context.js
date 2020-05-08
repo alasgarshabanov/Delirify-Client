@@ -3,34 +3,13 @@ import * as moment from "moment";
 
 import registrationReducer from '../reducers/register.reducer';
 import registrationActions from '../actions/register.actions';
-import {getStorageKey, saveStorageKey} from "../../utils/localStorage";
+import {getStorageKey, removeStorageKey, saveStorageKey} from "../../utils/localStorage";
 import {REGISTRATION_STATE_KEY, SMS_CODE_VERIFICATION_EXPIRE_SECONDS} from "../../config";
 
-const registrationContextInitialPureState = {
-  currentStep: 0,
-  isLoading: false,
-  innerStep: 0,
-  mobile: '',
-  mobileVerified: false,
-  countDownStart: false,
-  verificationAttempts: 3,
-  verificationAttemptExpireAfter: SMS_CODE_VERIFICATION_EXPIRE_SECONDS,
-  userType: 1,
-  email: '',
-  username: '',
-  user: {
-    name: '',
-    surname: '',
-  },
-  address: {
-    country: '',
-    city: '',
-    zip: '',
-    phone: '',
-    addressLine: '',
-    addressLine2: '',
-  },
-  validTill: moment().add(5, 'h')
+const mapContextInitialPureState = {
+  lat: null,
+  lng: null,
+  street: ''
 };
 
 const registrationContextInitialState = getStorageKey(REGISTRATION_STATE_KEY) || registrationContextInitialPureState;
