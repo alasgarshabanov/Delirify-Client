@@ -12,7 +12,6 @@ const theme = createMuiTheme({
     type: 'dark',
     primary: teal,
     secondary: yellow,
-
   },
   overrides: {
     // Style sheet name ⚛️

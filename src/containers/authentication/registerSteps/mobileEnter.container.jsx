@@ -78,8 +78,15 @@ const MobileEnterContainer = props => {
     }
 
     if (error) {
-      setSuccessMessage('');
-      setErrorMessage(JSON.stringify(error));
+      let message = '';
+      console.log('ERR > ', error);
+      if (typeof error === 'object') {
+        message = error.map((err) => {
+          return err.message || '';
+        });
+      } else
+        message = JSON.stringify(error);
+      setErrorMessage(message);
     }
   }, [error, response, dispatch]);
 

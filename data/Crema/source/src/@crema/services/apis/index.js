@@ -1,0 +1,9 @@
+import './mail';
+import './dashboard/index';
+import './editors/index';
+import './gallery/index';
+import './todo/index';
+import './userList';
+import './extraPages/ecommerce';
+import './contact/index';
+import './scrumboard/index';

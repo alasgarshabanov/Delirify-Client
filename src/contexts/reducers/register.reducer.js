@@ -42,7 +42,7 @@ export default (state = registrationContextInitialPureState, action) => {
       return { ...state, verificationAttempts: verificationAttempts - 1 };
 
     case registrationActions.ACTION_USER_FILLED_PERSONAL_DATA:
-      const { name, surname, username, email } = action.payload;
+      const { name, surname, username, email, publicId } = action.payload;
       return {
         ...state,
         currentStep: currentStep + 1,

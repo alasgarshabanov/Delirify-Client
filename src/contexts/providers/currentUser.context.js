@@ -5,7 +5,7 @@ import currentUserActions from '../actions/currentUser.actions';
 
 const currentUserInitialState = {
     isLoading: false,
-    isLoggedIn: null,
+    isLoggedIn: false,
     currentUser: null,
 };
 

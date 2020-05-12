@@ -7,7 +7,7 @@ const defaultCoordinates = {
   lat: 40.379652,
   lng: 49.867092
 }
-const MapComponent = () => {
+const MapComponent = ({ mapDataChanged }) => {
   const classes = useStyles();
   const googleMapRef = useRef(null);
   const [googleMap, setGoogleMap] = useState({
@@ -22,7 +22,7 @@ const MapComponent = () => {
   useEffect(() => {
     // Create the script tag, set the appropriate attributes
     var script = document.createElement('script');
-    // script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAP_API_KEY}&callback=initMap&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAP_API_KEY}&callback=initMap&libraries=places`;
     script.defer = true;
     script.async = true;
 
@@ -80,7 +80,8 @@ const MapComponent = () => {
           lng: markerPosition.lng(),
           lat: markerPosition.lat()
         }})
-        codeAddress(position);
+        // codeAddress(position);
+        mapDataChanged(position);
         console.log('-- >Tex add', textAddress);
       });
     }

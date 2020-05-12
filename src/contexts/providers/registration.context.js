@@ -17,11 +17,6 @@ const registrationContextInitialPureState = {
   verificationAttemptExpireAfter: SMS_CODE_VERIFICATION_EXPIRE_SECONDS,
   userType: 1,
   email: '',
-  username: '',
-  user: {
-    name: '',
-    surname: '',
-  },
   address: {
     country: '',
     city: '',

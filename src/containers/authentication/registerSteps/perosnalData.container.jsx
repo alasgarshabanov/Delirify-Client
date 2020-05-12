@@ -74,16 +74,15 @@ const PersonalData = props => {
           if (registerUser) {
             const { user, success, message } = registerUser;
             if (user && success) {
-              console.log('suus', user, success, registerUser)
-              const { email, username, userProfile: {name, surname} } = user;
+              const { email, username, publicId, userProfile: {name, surname} } = user;
               setValues({...values, notification: { hasNotificationMessage: true, type: 'success', message }})
               setTimeout(() => {
                 setValues({...values, notification: notificationInitialState })
-                if (name && surname && username && email) {
+                if (name && surname && username && email && publicId) {
                   dispatch({
                     type: registrationActions.ACTION_USER_FILLED_PERSONAL_DATA,
                     payload: {
-                      name, surname, username, email
+                      name, surname, username, email, publicId
                     }
                   });
                 }
@@ -142,6 +141,10 @@ const PersonalData = props => {
     setForm({...form, [name]: value});
   };
 
+  /**
+   * Submit to the next screen
+   * @param ev
+   */
   const handleNext = ev => {
     ev.preventDefault();
 
@@ -165,6 +168,7 @@ const PersonalData = props => {
             success
             message
             user {
+              publicId
               email
               username
               userProfile {

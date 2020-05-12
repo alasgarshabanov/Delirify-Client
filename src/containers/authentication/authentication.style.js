@@ -30,8 +30,8 @@ const useAuthStyles = makeStyles(theme => ({
     minWidth: '70%'
   },
   formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
+    margin: theme.spacing(0),
+    width: '100%'
   },
   selectEmpty: {
     marginTop: theme.spacing(2),
