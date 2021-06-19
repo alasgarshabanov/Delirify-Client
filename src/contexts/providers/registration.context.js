@@ -13,7 +13,7 @@ const registrationContextInitialPureState = {
   mobile: '',
   mobileVerified: false,
   countDownStart: false,
-  verificationAttempts: 3,
+  verificationAttempts: 10,
   verificationAttemptExpireAfter: SMS_CODE_VERIFICATION_EXPIRE_SECONDS,
   userType: 1,
   email: '',

@@ -43,7 +43,7 @@ const TestosPage = () => {
    *
    */
   const handleClickRemove = () => {
-    fetch('http://dlfy.dp/t/remove', {method: 'POST'})
+    fetch('http://api.dlfy.dp/t/remove', {method: 'POST'})
       .then(response => response.json())
       .then(data => console.log(data))
       .catch(err => console.log('Err > >', err));
@@ -53,7 +53,7 @@ const TestosPage = () => {
    *
    */
   const handleClickRefresh = () => {
-    fetch('http://dlfy.dp/t/refresh', {method: 'GET'})
+    fetch('http://api.dlfy.dp/t/refresh', {method: 'GET'})
       .then(response => response.json())
       .then(data => console.log(data))
       .catch(err => console.log('Err > >', err));

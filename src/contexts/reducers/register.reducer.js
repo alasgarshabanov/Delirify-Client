@@ -48,6 +48,7 @@ export default (state = registrationContextInitialPureState, action) => {
         currentStep: currentStep + 1,
         email,
         username,
+        publicId,
         user: { name, surname }
       };
 

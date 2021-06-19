@@ -1,18 +1,18 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 import { Box, Grid, Button, TextField } from "@material-ui/core";
 import InputMask from "react-input-mask";
-import {registrationActions, useRegistrationContext} from "../../../contexts/providers/registration.context";
+import { registrationActions, useRegistrationContext } from "../../../contexts/providers/registration.context";
 import useFetch from "../../../hooks/useFetch.hook";
 import LoadingComponent from "../../../components/ui/loadin.component";
 import TimerComponent from "../../../components/timer/timer.component";
-import {SMS_CODE_VERIFICATION_EXPIRE_SECONDS} from "../../../config";
+import { SMS_CODE_VERIFICATION_EXPIRE_SECONDS } from "../../../config";
 import ActionAlertComponent from "../../../components/ui/actionAlert.component";
 
 
 const MobileEnterContainer = props => {
-  const {classes, translations} = props;
-  const {formatMessage: t} = useIntl();
+  const { classes, translations } = props;
+  const { formatMessage: t } = useIntl();
   const [registerState, dispatch] = useRegistrationContext();
   const { innerStep, mobileVerified, verificationAttempts, verificationAttemptExpireAfter } = registerState;
 
@@ -22,12 +22,12 @@ const MobileEnterContainer = props => {
   const [successMessage, setSuccessMessage] = useState('');
   const [{ isLoading, response, error }, doFetch] = useFetch();
 
-  const {TEXT_NEXT} = translations;
+  const { TEXT_NEXT } = translations;
   const mobilePattern = new RegExp(/\(\d{2}\)\s\d{3}\s\d{2}\s\d{2}$/g);
-  const verificationCodePattern = new RegExp(/\d\s\d\s\d\s\d$/g);
+  const verificationCodePattern = new RegExp(/\d\d\d\d$/g);
   const trimNonRequiredCharacters = /[\s()-]+/gi;
 
-  const TEXT_MOBILE_NUMBER = t({ id: "MOBILE_NUMBER", defaultMessage: "Mobile Number"});
+  const TEXT_MOBILE_NUMBER = t({ id: "MOBILE_NUMBER", defaultMessage: "Mobile Number" });
 
 
   // Will control verification expired time, could not send mobile before 180 seconds expired
@@ -50,27 +50,37 @@ const MobileEnterContainer = props => {
         const { data } = response;
         if (typeof data.generateVerificationCode !== 'undefined') {
           const { generateVerificationCode } = data;
+
+
           if (generateVerificationCode) {
-            if (generateVerificationCode.success) {
-              setSuccessMessage(generateVerificationCode.message);
+            const { errors, notifications } = generateVerificationCode;
+            if (errors.length > 0) {
+
+              setErrorMessage(errors.map(({ message }) => { return message + " "; }));
+            } else {
+              setSuccessMessage(notifications.map(({ message }) => { return message + " "; }));
               dispatch({ type: registrationActions.REFRESH_TIMER });
               dispatch({ type: registrationActions.NEXT_INNER_STEP });
               dispatch({ type: registrationActions.TIMER_COUNTDOWN_START });
-            } else {
-              setErrorMessage(generateVerificationCode.message);
             }
+
           }
         }
 
         if (typeof data.checkVerificationCode !== 'undefined') {
           const { checkVerificationCode } = data;
+
+
           if (checkVerificationCode) {
-            if (checkVerificationCode.success) {
-              dispatch({ type: registrationActions.ACTION_MOBILE_NUMBER_VERIFIED});
+            const { errors, notifications } = checkVerificationCode;
+            if (errors.length > 0) {
+
+              setErrorMessage(errors.map(({ message }) => { return message + " "; }));
+            }
+            else {
+              setSuccessMessage(notifications.map(({ message }) => { return message + " "; }));
+              dispatch({ type: registrationActions.ACTION_MOBILE_NUMBER_VERIFIED });
               dispatch({ type: registrationActions.NEXT_STEP });
-            } else {
-              if (verificationAttempts > 0 && innerStep === 1)
-                setErrorMessage(checkVerificationCode.message);
             }
           }
         }
@@ -103,8 +113,8 @@ const MobileEnterContainer = props => {
   const handleNext = () => {
 
     // If mobile already verified, go to the next page
-    if ( mobileVerified ) {
-      dispatch({type: registrationActions.NEXT_STEP});
+    if (mobileVerified) {
+      dispatch({ type: registrationActions.NEXT_STEP });
       return;
     }
 
@@ -122,17 +132,20 @@ const MobileEnterContainer = props => {
         })
         .catch(err => {
           // If we have any error during sending mobile
-          dispatch({type: registrationActions.FAILED_MOBILE_SENT});
+          dispatch({ type: registrationActions.FAILED_MOBILE_SENT });
           console.error(err)
         });
     } else {
-      if (!verificationCodePattern.test(verificationCode))
+      if (!verificationCodePattern.test(verificationCode)) {
+        console.log(">> ", verificationCode);
         setErrorMessage('Please Enter Correct Code');
+        return;
+      }
 
-      dispatch({type: registrationActions.START_VERIFICATION_CODE_SENT});
+      dispatch({ type: registrationActions.START_VERIFICATION_CODE_SENT });
       sendVerificationCode(verificationCode)
         .then(res => {
-          dispatch({type: registrationActions.SUCCESS_VERIFICATION_CODE_SENT})
+          dispatch({ type: registrationActions.SUCCESS_VERIFICATION_CODE_SENT })
         })
         .catch(err => {
           dispatch({ type: registrationActions.FAILED_VERIFICATION_CODE_SENT });
@@ -146,14 +159,19 @@ const MobileEnterContainer = props => {
     setMobileNumber(verifiedData);
     dispatch({
       type: registrationActions.START_MOBILE_SENT,
-      payload: { mobile: verifiedData }
+      payload: { mobile: mobileNumber }
     });
     await doFetch({
       data: {
         query: `mutation GenerateCode($verifiedData: String!) {
           generateVerificationCode (verifiedData: $verifiedData) {
-            success
-            message
+            errors {
+              message
+            }
+            notifications {
+              message
+              type
+            }
           }
         }`,
         variables: {
@@ -173,8 +191,13 @@ const MobileEnterContainer = props => {
       data: {
         query: `mutation CodeVerifierQuery($mobileNumber: String!, $verificationCode: String!) {
           checkVerificationCode(mobileNumber: $mobileNumber, verificationCode: $verificationCode) {
-            success
-            message
+            errors {
+              message
+            }
+            notifications {
+              message
+              type
+            }          
           }
         }`,
         variables: {
@@ -191,11 +214,11 @@ const MobileEnterContainer = props => {
       <Box>
         <Grid item xs={8}>
           {successMessage && <ActionAlertComponent xs={8} severity="success" message={successMessage} />}
-          { errorMessage && (
+          {errorMessage && (
             <ActionAlertComponent severity="error" xs={8} message={errorMessage} />
           )}
-          { verificationAttemptExpireAfter < SMS_CODE_VERIFICATION_EXPIRE_SECONDS
-            && <TimerComponent severity="info" /> }
+          {verificationAttemptExpireAfter < SMS_CODE_VERIFICATION_EXPIRE_SECONDS
+            && <TimerComponent severity="info" />}
           {innerStep === 0 &&
             <InputMask
               mask="(99) 999 99 99"
@@ -231,7 +254,7 @@ const MobileEnterContainer = props => {
           )}
         </Grid>
       </Box>
-      <div className={ classes.actionsContainer }>
+      <div className={classes.actionsContainer}>
         <Button
           variant="contained"
           color="primary"

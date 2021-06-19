@@ -165,8 +165,13 @@ const PersonalData = props => {
       data: {
         query:`mutation RegisterUser($userData: UserRegisterInput!) {
           registerUser(userData: $userData) {
-            success
-            message
+            errors{
+              message
+            }
+            notifications{
+              message
+              type
+            }
             user {
               publicId
               email

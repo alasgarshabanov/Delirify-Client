@@ -114,5 +114,10 @@
   "enter_password": "Enter your password",
   "loading": "Loading...",
   "signout": "Sign Out",
-  "profile": "My Profile"
+  "profile": "My Profile",
+  "LOGIN_CREDENTIALS": "Email or Username",
+  "LOGIN_CREDENTIALS_REQUIRED": "Please enter email or username",
+  "NEXT": "Next",
+  "FINISH": "Finish",
+  "COMPLETE": "Complete"
 }
