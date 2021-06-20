@@ -3,11 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
+// import IconButton from "@material-ui/core/IconButton";
 import RemoveIcon from "@material-ui/icons/Remove";
-import AddIcon from "@material-ui/icons/Add";
+// import AddIcon from "@material-ui/icons/Add";
 import classNames from "classnames";
-import Icon from "@material-ui/core/Icon";
+// import Icon from "@material-ui/core/Icon";
 
 const currencies = [
   {
@@ -49,12 +49,12 @@ export default function LayoutTextFields() {
 
   const [inputFields, setInputFields] = useState([
     {
-      productLink: "",
-      numberOfProduct: "",
-      productSize: "",
-      currency: "",
-      productPrice: "",
-      comments: ""
+      productLink: '',
+      numberOfProduct: '',
+      productSize: '',
+      currency: '',
+      productPrice: '',
+      comments: ''
     }
   ]);
   const handleChangeInput = (index, event) => {
@@ -64,12 +64,12 @@ export default function LayoutTextFields() {
   };
   const handleAddFields = () => {
     setInputFields([...inputFields, {
-      productLink: "",
-      numberOfProduct: "",
-      productSize: "",
-      currency: "",
-      productPrice: "",
-      comments: ""
+      productLink: '',
+      numberOfProduct: '',
+      productSize: '',
+      currency: '',
+      productPrice: '',
+      comments: ''
     }])
   }
   const handleRemoveFields = (index) => {
@@ -83,7 +83,7 @@ export default function LayoutTextFields() {
         <div key={index}>
           <div>
             <TextField
-              value={inputField.productLink}
+              value={inputFields.productLink}
               style={{ margin: 8 }}
               placeholder="Məhsulun linki"
               helperText="Full width!"
@@ -96,7 +96,7 @@ export default function LayoutTextFields() {
             />
             <div>
               <TextField
-                value={inputField.numberOfProduct}
+                value={inputFields.numberOfProduct}
                 onChange={event => handleChangeInput(index, event)}
                 label="Sayı"
                 className={classes.textField}
@@ -104,7 +104,7 @@ export default function LayoutTextFields() {
                 style={{ width: 350 }}
               />
               <TextField
-                value={inputField.productSize}
+                value={inputFields.productSize}
                 onChange={event => handleChangeInput(index, event)}
                 label="Ölçü"
                 TextField
@@ -117,7 +117,7 @@ export default function LayoutTextFields() {
           </div>
           <div>
             <TextField
-              value={inputField.currency}
+              value={inputFields.currency}
               onChange={event => handleChangeInput(index, event)}
               id="standard-select-currency"
               select
@@ -134,10 +134,10 @@ export default function LayoutTextFields() {
               ))}
             </TextField>
             <TextField
-              value={inputField.productPrice}
+              value={inputFields.productPrice}
               onChange={event => handleChangeInput(index, event)}
               label="Məhsulun dəyəri"
-              TextField
+              
               id="margin"
               className={classes.textField}
               helperText="Some important text"
@@ -146,7 +146,7 @@ export default function LayoutTextFields() {
           </div>
 
           <TextField
-            value={inputField.comments}
+            value={inputFields.comments}
             onChange={event => handleChangeInput(index, event)}
             id="standard-full-width"
             style={{ margin: 8 }}
