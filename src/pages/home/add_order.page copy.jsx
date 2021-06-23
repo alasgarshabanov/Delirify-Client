@@ -12,7 +12,6 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-
 const currencies = [
   {
     value: "TRY",
@@ -42,6 +41,10 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 650,
 
   },
+  button:{
+    marginRight: theme.spacing(1)
+
+  },
 }));
 
 const handleButtonClick = (ev) => {
@@ -67,30 +70,33 @@ export default function LayoutTextFields() {
     }
   ]);
 
-  let totalPrice = [
-    { productPrice: '' }
-  ]
-
-  totalPrice = () =>
-    this.state.products.reduce(
-      (sum, product) => sum + inputFields.productPrice * product.price,
-
-    )
+  // let totalPrice = [
+    // { productPrice: '' }
+  // ]
+// 
+  // totalPrice = () =>
+    // this.state.products.reduce(
+      // (sum, product) => sum + inputFields.productPrice * product.price,
+// 
+    // )
 
   const handleChangeInput = (index, event) => {
     const values = [...inputFields];
     values[index][event.target.name] = event.target.value;
     setInputFields(values);
+
   };
   const handleAddFields = () => {
+
     setInputFields([...inputFields, {
       productLink: '',
       numberOfProduct: '',
       productSize: '',
       currency: '',
       productPrice: '',
-      comments: ''
+      comments: '',
     }])
+
   }
   const handleRemoveFields = (index) => {
     const values = [...inputFields];
@@ -100,6 +106,7 @@ export default function LayoutTextFields() {
 
   function createData(name, price) {
     return { name, price };
+
   }
 
   const rows = [
@@ -140,6 +147,7 @@ export default function LayoutTextFields() {
                 label="Ölçü"
                 TextField
                 id="margin"
+                
                 className={classes.textField}
                 helperText="Some important text"
                 style={{ width: 350 }}
@@ -225,7 +233,10 @@ export default function LayoutTextFields() {
           </TableBody>
         </Table>
       </TableContainer></div>
-
+      {/* 
+      <Button 
+      className={classes.button}
+      variant='contained' color="primary" type="submit" >Submit</Button> */}
     </div>
 
   );

@@ -11,11 +11,58 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import isURL from "validator/lib/isURL"
+
+const formInitialState = {
+  productLink:
+  {
+    value: '',
+    isValid: false,
+    message: '',
+    name: 'productLink',
+  },
+  numberOfProduct:
+  {
+    value: '',
+    isValid: false,
+    message: '',
+    name: 'numberOfProduct',
+
+  },
+  productSize:
+  {
+    value: '',
+    isValid: false,
+    message: '',
+    name: 'productSize',
+
+  },
+  priceCurrency:
+  {
+    value: '',
+    isValid: false,
+    message: '',
+    name: 'priceCurrency'
+
+  },
+  productPrice:
+  {
+    value: '',
+    isValid: false,
+    message: '',
+    name: 'productPrice',
+  },
+  comments: {
+    value: '',
+    isValid: false,
+    message: '',
+    name: 'productComments'
+  },
+};
 
 
 const currencies = [
   {
-    value: "TRY",
     value: "TRY",
     label: "TRY"
   }
@@ -35,68 +82,82 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     width: "25ch"
   },
-  Button: {
-    marginRight: theme.spacing(1)
-  },
   table: {
     minWidth: 650,
-
   },
 }));
 
-const handleButtonClick = (ev) => {
-  ev.preventDefault();
-};
 
 export default function LayoutTextFields() {
   const classes = useStyles();
   const [currency, setCurrency] = React.useState("TRY");
+  const [formState, setFormState] = useState([formInitialState]);
 
   const handleChange = (event) => {
     setCurrency(event.target.value);
   };
 
-  const [inputFields, setInputFields] = useState([
-    {
-      productLink: '',
-      numberOfProduct: '',
-      productSize: '',
-      currency: '',
-      productPrice: '',
-      comments: ''
+
+
+  // const { productLink, numberOfProduct, productSize, priceCurrency, productPrice, comments } = formState;
+
+  const handleChangeInput = (ev, index) => {
+    //const values = [...inputFields];
+    const { name, value, } = ev.target;
+    console.log('input >> ', name, value);
+    //values[index][event.target.name] = event.target.value;
+    //setInputFields(values);
+    console.log("formstate : ", formState);
+
+    console.log(" >> ", name === `productLink[${[index]}]`, "name->>",name, `productLink[${[index]}]`);
+    if (name === `productLink[${[index]}]`) {
+      if (!isURL(value)) {
+        const state = [...formState];
+        state[index] = {
+          ...formState[index],
+          productLink: {
+            name: 'productLink',
+            isValid: false,
+            message: "Your link is incorrect!!!, It must be asasasa",
+            value: value,
+          }
+        }
+        console.log("state : ", state);
+        setFormState(state);
+        return;
+      }
     }
-  ]);
 
-  let totalPrice = [
-    { productPrice: '' }
-  ]
-
-  totalPrice = () =>
-    this.state.products.reduce(
-      (sum, product) => sum + inputFields.productPrice * product.price,
-
-    )
-
-  const handleChangeInput = (index, event) => {
-    const values = [...inputFields];
-    values[index][event.target.name] = event.target.value;
-    setInputFields(values);
+    const clearName = name.replace(/ *\[[^)]*\] */g,"");
+    const state = [...formState];
+    state[index] = {
+      ...formState[index],
+      [clearName]: {
+        name: formState[index][clearName].name,
+        isValid: true,
+        message: "",
+        value: value,
+      }
+    }
+    
+    setFormState(state);
+    console.log("formstate : ", formState);
   };
+
   const handleAddFields = () => {
-    setInputFields([...inputFields, {
-      productLink: '',
-      numberOfProduct: '',
-      productSize: '',
-      currency: '',
-      productPrice: '',
-      comments: ''
-    }])
+    setFormState([...formState, formInitialState]);
   }
-  const handleRemoveFields = (index) => {
-    const values = [...inputFields];
+  
+  const handleRemoveFields = (ev, index) => {
+    const values = [...formState];
     values.splice(index, 1);
-    setInputFields(values);
+    setFormState(values);
+
   }
+
+  /*   const handleSubmitForm = (e) => {
+  
+    } */
 
   function createData(name, price) {
     return { name, price };
@@ -108,39 +169,45 @@ export default function LayoutTextFields() {
     createData("Pul köçürməsi və konvertasiya itkisi ", 27.25),
     createData("Toplam", 572.25)
   ];
+
   return (
     <div className={classes.root}>
-      {inputFields.map((inputField, index) => (
-        <div key={index}>
+      {formState.map((inputField, index) => {
+        console.log('index', index);
+        return (<div key={index}>
           <div>
             <TextField
-              value={inputFields.productLink}
+              value={inputField.productLink.value}
               style={{ margin: 8 }}
               placeholder="Məhsulun linki"
               helperText="Full width!"
+              isValid={inputField.productLink.isValid}
+              isInvalid={!inputField.productLink.isValid && inputField.productLink.message.length > 0} //true
               fullWidth
+              name={`${inputField.productLink.name}[${index}]`}
               margin="normal"
-              onChange={event => handleChangeInput(index, event)}
+              onChange={ev => handleChangeInput(ev, index)}
               InputLabelProps={{
                 shrink: true
               }}
             />
             <div>
               <TextField
-                value={inputFields.numberOfProduct}
-                onChange={event => handleChangeInput(index, event)}
+                value={inputField.numberOfProduct.value}
+                onChange={ev => handleChangeInput(ev, index)}
                 label="Sayı"
                 className={classes.textField}
+                name={`${inputField.numberOfProduct.name}[${index}]`}
                 helperText="Some important text"
                 style={{ width: 350 }}
               />
               <TextField
-                value={inputFields.productSize}
-                onChange={event => handleChangeInput(index, event)}
+                value={inputField.productSize.value}
+                onChange={ev => handleChangeInput(ev, index)}
+                name={`${inputField.productSize.name}[${index}]`}
                 label="Ölçü"
-                TextField
+
                 id="margin"
-                className={classes.textField}
                 helperText="Some important text"
                 style={{ width: 350 }}
               />
@@ -148,13 +215,12 @@ export default function LayoutTextFields() {
           </div>
           <div>
             <TextField
-              value={inputFields.currency}
-              onChange={event => handleChangeInput(index, event)}
+              onChange={ev => handleChangeInput(ev, index)}
               id="standard-select-currency"
+              name={`${inputField.priceCurrency.name}[${index}]`}
               select
               label="Select"
-              value={currency}
-              onChange={handleChange}
+              value={inputField.priceCurrency.value}
               helperText="Please select your currency"
               style={{ width: 350, marginLeft: 8 }}
             >
@@ -165,20 +231,21 @@ export default function LayoutTextFields() {
               ))}
             </TextField>
             <TextField
-              value={inputFields.productPrice}
-              onChange={event => handleChangeInput(index, event)}
+              value={inputField.productPrice.value}
+              onChange={ev => handleChangeInput(ev, index)}
+              name={`${inputField.productPrice.name}[${index}]`}
               label="Məhsulun dəyəri"
-
               id="margin"
-              className={classes.textField}
+              onChange={handleChange}
               helperText="Some important text"
               style={{ width: 360 }}
             />
           </div>
 
           <TextField
-            value={inputFields.comments}
-            onChange={event => handleChangeInput(index, event)}
+            value={inputField.comments.value}
+            onChange={ev => handleChangeInput(ev, index)}
+            name={`${inputField.comments.name}[${index}]`}
             id="standard-full-width"
             style={{ margin: 8 }}
             placeholder="Şərhləriniz"
@@ -190,15 +257,15 @@ export default function LayoutTextFields() {
             }}
           />
           <Button
-
             variant="contained"
             color="secondary"
-            onClick={() => handleRemoveFields(index)}
+            onClick={ev => handleRemoveFields(ev, index)}
           >
             <RemoveIcon />
           </Button>
         </div>
-      ))}
+        )
+      })}
 
       <Button
         variant="contained"
